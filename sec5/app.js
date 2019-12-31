@@ -12,6 +12,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 // but it's recommended to install manually to parse body without crush
 // even if this would be removed in the future.
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
