@@ -3,7 +3,7 @@
 
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('node-complete', 'root', 'node-complete', {
+const sequelize = new Sequelize('node-complete', 'root', 'ROSIAdekirusql1', {
     dialect: 'mysql',
     host: 'localhost'
 });
