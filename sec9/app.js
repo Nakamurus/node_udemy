@@ -48,8 +48,8 @@ User.hasMany(Order);
 Order.belongsToMany(Product, {through: OrderItem });
 
 sequelize
-  .sync({ force: true }) // forcing overwrite database to add User model, which Product model belongs to
-//  .sync() // sync defined models and create tables if there's not
+//  .sync({ force: true }) // forcing overwrite database to add User model, which Product model belongs to
+  .sync() // sync defined models and create tables if there's not
   .then(result => {
       return User.findByPk(1);
   })
