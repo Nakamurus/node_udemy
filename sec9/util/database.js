@@ -1,11 +1,33 @@
-// Without Sequelize version
-// Sequelize version
+require('dotenv').config();
+const mongodb = require("mongodb");
+const MongoClient = mongodb.MongoClient;
 
-const Sequelize = require('sequelize');
+const MONGODBCONNECTIONSTR = process.env.MONGODBCONNECTIONSTR;
 
-const sequelize = new Sequelize('node-complete', 'root', 'ROSIAdekirusql1', {
-    dialect: 'mysql',
-    host: 'localhost'
-});
+let _db;
 
-module.exports = sequelize;
+const mongoConnect = cb => {
+    MongoClient.connect(
+        MONGODBCONNECTIONSTR
+    )
+      .then(client => {
+          console.log('Connected!');
+          _db = client.db(); // store a connection to my database
+          cb()
+      })
+      .catch(err => {
+          console.log(err)
+          throw err
+      });
+};
+
+const getDb = () => {
+    // returns access to the database if it exists
+    if (_db) {
+        return _db;
+    }
+    throw 'No database found!';
+};
+
+exports.mongoConnect = mongoConnect
+exports.getDb = getDb;
