@@ -10,12 +10,25 @@ class Product {
 
   save() {
     const db = getDb();
-    db.collection('products') // fetch a database or create it if it doesn't exist
+    return db.collection('products') // fetch a database or create it if it doesn't exist
       .insertOne(this)
       .then(result => {
         console.log(result);
       })
       .catch(err => console.log(err));
+  }
+
+  static fetchAll() {
+    const db = getDb();
+    return db
+      .collection('products')
+      .find()
+      .toArray()
+      .then(products => {
+        console.log(products);
+        return products;
+      })
+      .catch(err => console.log(err))
   }
 }
 
