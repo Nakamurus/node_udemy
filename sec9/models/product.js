@@ -1,17 +1,27 @@
+const mongodb = require('mongodb');
 const getDb = require('../util/database').getDb;
 
 class Product {
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
+    this._id = id;
   }
 
   save() {
     const db = getDb();
-    return db.collection('products') // fetch a database or create it if it doesn't exist
-      .insertOne(this)
+    let dbOp;
+    if (this._id) {
+      // Update the product
+      dbOp = db
+        .collection('products')
+        .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: this });
+    } else {
+      dbOp = db.collection('products').insertOne(this);
+    }
+    return dbOp
       .then(result => {
         console.log(result);
       })
@@ -27,6 +37,20 @@ class Product {
       .then(products => {
         console.log(products);
         return products;
+      })
+      .catch(err => console.log(err))
+  }
+
+  static findByPk(prodId) {
+    const db = getDb();
+    return db
+      .collection('products').find({ _id: new mongodb.ObjectId(prodId)})
+      // mongoDB uses bson(binary json), so you can't compare mongoDB's id with string prodId
+      // therefore you have to create mongoDB's objectId object with new mongodb.ObjectId(prodId)
+      .next()
+      .then(product => {
+        console.log(product);
+        return product;
       })
       .catch(err => console.log(err))
   }

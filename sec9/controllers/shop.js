@@ -3,8 +3,9 @@ const Cart = require('../models/cart');
 const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
-  Product // using Sequelize
-    .findAll()
+  Product
+    .fetchAll()
+    // .findAll // using Sequelize
     .then(products => {
       res.render('shop/product-list', {
         prods: products,
@@ -12,9 +13,7 @@ exports.getProducts = (req, res, next) => {
         path: '/products'
       });
     })
-    .catch(err => {
-      console.log(err)
-    })
+    .catch(err => console.log(err))
 
   // using raw SQL
   // Product.fetchAll()
@@ -70,8 +69,9 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product // using Sequelize
-    .findAll()
+  Product
+    .fetchAll() // mongoDB
+    // .findAll() // using Sequelize
     .then(products => {
       res.render('shop/index', {
         prods: products,
