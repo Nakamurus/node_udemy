@@ -16,7 +16,14 @@ exports.postAddProduct = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(title, price, description, imageUrl);
+  const product = new Product(
+    title,
+    price,
+    description,
+    imageUrl,
+    null,
+    req.user._id
+  );
   product
     .save()
     .then(result => {
@@ -85,12 +92,13 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+
   const product = new Product(
     updatedtitle,
     updatedPrice,
     updatedDesc,
     updatedImageUrl,
-    new ObjectId(prodId)
+    prodId
   );
       // Sequelize
     // Product.findByPk(prodId)
@@ -155,19 +163,24 @@ exports.getProducts = (req, res, next) => {
   // });
 };
 
-// exports.postDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   Product.findByPk(prodId)
-//     .then(product => {
-//       return product.destroy();
-//     })
-//     .then(result => {
-//       console.log('DESCTROYED PRODUCT');
-//       res.redirect('/admin/products');
-//     })
-//     .catch(err => console.log(err))
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.deleteByPk(prodId).then(() => {
+    console.log('DESTROYED PRODUCT');
+    res.redirect('/admin/products');
+  })
+  // Sequelize
+  // Product.findByPk(prodId)
+  //   .then(product => {
+  //     return product.destroy();
+  //   })
+    // .then(result => {
+    //   console.log('DESCTROYED PRODUCT');
+    //   res.redirect('/admin/products');
+    // })
+    .catch(err => console.log(err))
 
-//   // raw SQL version
-//   // Product.deleteById(prodId);
-//   // res.redirect('/admin/products')
-// }
+  // raw SQL version
+  // Product.deleteById(prodId);
+  // res.redirect('/admin/products')
+}
