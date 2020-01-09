@@ -17,11 +17,23 @@ class User {
     }
 
     addToCart(product) {
-        // const cartProduct = this.cart.item.findIndex(cp =< {
-        //     return cp._id === product._id;
-        // });
+        const cartProductIndex = this.cart.items.findIndex(cp => {
+            return cp.productId.toString() === product._id.toString();
+        });
+        let newQUantity = 1;
+        const updatedCartItems = [...this.cart.items];
+
+        if (cartProductIndex >= 0) {
+            newQUantity = this.cart.items[cartProductIndex].quantity + 1;
+            updatedCartItems[cartProductIndex].quantity = newQUantity;
+        } else {
+            updatedCartItems.push({
+                productId: new ObjectId(product._id),
+                quantity: newQUantity
+            });
+        }
         const updatedCart = {
-            items: [{ productId: new ObjectId(product._id), quantity: 1 }]
+            items: updatedCartItems
         };
         const db = getDb();
         return db
@@ -30,6 +42,27 @@ class User {
               { _id: new ObjectId(this._id) },
               { $set: {cart: updatedCart} }
           );
+    }
+
+    getCart() {
+        const db = getDb();
+        const productIds = this.cart.items.map(i => {
+            return i.productId;
+        });
+        return db
+        .collection('products')
+        .find({ _id: { $in: productIds } })
+        .toArray()
+        .then(products => {
+            return products.map(p => {
+                return {
+                    ...p,
+                    quantity: this.cart.items.find(i => {
+                        return i.productId.toString() === p._id.toString();
+                    }).quantity
+                };
+            });
+        });
     }
 
     static findByPk(userId) {
