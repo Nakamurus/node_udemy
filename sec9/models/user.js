@@ -65,6 +65,21 @@ class User {
         });
     }
 
+    deleteItemFromCart(productId) {
+        const updatedCartItems = this.cart.items.filter(item => {
+            return item.productId.toString() !== productId.toString();
+            // idが一致しないものを真で返す
+        });
+        const db = getDb();
+        return db
+          .collection('users')
+          .updateOne(
+              { _id: new ObjectId(this._id) },
+              { $set: { cart: {items: updatedCartItems} }}
+              // idが一致しないものだけを改めてCartに入れる
+          );
+    }
+
     static findByPk(userId) {
         const db = getDb();
         return db.collection('users')
