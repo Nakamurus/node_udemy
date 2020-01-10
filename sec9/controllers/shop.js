@@ -4,7 +4,8 @@ const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
   Product
-    .fetchAll()
+    .find() // mongoose method
+    // .fetchAll() // using raw mongoDB
     // .findAll // using Sequelize
     .then(products => {
       res.render('shop/product-list', {
@@ -70,7 +71,8 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
   Product
-    .fetchAll() // mongoDB
+    .find() // mongoose method
+    // .fetchAll() // raw mongoDB
     // .findAll() // using Sequelize
     .then(products => {
       res.render('shop/index', {
