@@ -46,9 +46,9 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-
   Product
-    .findByPk(prodId)
+    .findById(prodId) // mongoose method
+    // .findByPk(prodId) // raw mongoDB
     .then(product => {
       if (!product) {
         return res.redirect('/');
@@ -99,14 +99,24 @@ exports.postEditProduct = (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
+  
+  Product.findById(prodId)
+    .then(product => {
+      product.title = updatedtitle;
+      product.price = updatedPrice;
+      product.description = updatedDesc;
+      product.imageUrl = updatedImageUrl;
+      return product.save();
+    })
 
-  const product = new Product(
-    updatedtitle,
-    updatedPrice,
-    updatedDesc,
-    updatedImageUrl,
-    prodId
-  );
+  // raw MongoDB
+  // const product = new Product(
+  //   updatedtitle,
+  //   updatedPrice,
+  //   updatedDesc,
+  //   updatedImageUrl,
+  //   prodId
+  // );
       // Sequelize
     // Product.findByPk(prodId)
     //   .then(product => {
@@ -115,8 +125,8 @@ exports.postEditProduct = (req, res, next) => {
       // product.imageUrl = updatedImageUrl;
       // product.description = updatedDesc;
       // return product.save();
-  product
-    .save()
+  // product
+  //   .save()
     .then(result => {
       console.log('UPDATED PRODUCT');
       res.redirect('/admin/products');
@@ -137,7 +147,8 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
   Product
-    .fetchAll()
+    .find() // mongoose method
+    // .fetchAll() // raw mongoDB
     .then(products => {
       res.render('admin/products', {
         prods: products,
@@ -172,10 +183,13 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.deleteByPk(prodId).then(() => {
-    console.log('DESTROYED PRODUCT');
-    res.redirect('/admin/products');
-  })
+  Product
+    .findByIdAndRemove(prodId)
+    // .deleteByPk(prodId) // raw MongoDB
+    .then(() => {
+      console.log('DESTROYED PRODUCT');
+      res.redirect('/admin/products');
+    })
   // Sequelize
   // Product.findByPk(prodId)
   //   .then(product => {
