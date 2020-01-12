@@ -12,7 +12,7 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.isLoggedIn
       });
     })
     .catch(err => console.log(err))
@@ -46,7 +46,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: '/products',
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -82,7 +82,7 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: 'Shop',
         path: '/',
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.isLoggedIn
       });
     })
     .catch(err => {
@@ -111,10 +111,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    res.redirect('/login')
-  } else {
-    req.user
+  req.user
     .populate('cart.items.productId')
     .execPopulate()
     // .getCart() // mongoDB
@@ -127,7 +124,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: products,
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.isLoggedIn
       });
     })
     .catch(err => console.log(err));
@@ -152,7 +149,6 @@ exports.getCart = (req, res, next) => {
   //     });
   //   });
   // });
-  }
 };
 
 exports.postCart = (req, res, next) => {
@@ -282,31 +278,26 @@ exports.postOrder = (req, res, next) => {
 }
 
 exports.getOrders = (req, res, next) => {
-  if (!req.session.isLoggedIn) {
-    res.redirect('/')
-  } else {
-    Order
-      .find({ 'user.userId': req.user._id })
-    // req.user
-    //   .getOrders()  // mongoDB
-      // Sequelize
-      // .getOrders({include: ['products']})
-      .then(orders => {
-        res.render('shop/orders', {
-          path: '/orders',
-          pageTitle: 'Your Orders',
-          orders: orders,
-          isAuthenticated: req.isLoggedIn
-        })
+  Order.find({ 'user.userId': req.user._id })
+  // req.user
+  //   .getOrders()  // mongoDB
+    // Sequelize
+    // .getOrders({include: ['products']})
+    .then(orders => {
+      res.render('shop/orders', {
+        path: '/orders',
+        pageTitle: 'Your Orders',
+        orders: orders,
+        isAuthenticated: req.isLoggedIn
       })
-      .catch(err => console.log(err))
-  }
+    })
+    .catch(err => console.log(err))
 };
 
 exports.getCheckout = (req, res, next) => {
   res.render('shop/checkout', {
     path: '/checkout',
     pageTitle: 'Checkout',
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.isLoggedIn
   });
 };
