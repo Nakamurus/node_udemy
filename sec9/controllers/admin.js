@@ -1,7 +1,4 @@
-const mongodb = require('mongodb');
 const Product = require('../models/product');
-
-const ObjectId = mongodb.ObjectId;
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -20,8 +17,9 @@ exports.postAddProduct = (req, res, next) => {
     title: title,
     price: price,
     description: description,
-    imageUrl: imageUrl
-  })
+    imageUrl: imageUrl,
+    userId: req.user // mongoose retrieve just an id from entire user data
+  });
   // MongoDB
   // const product = new Product(
   //   title,
@@ -148,6 +146,10 @@ exports.postEditProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   Product
     .find() // mongoose method
+    // .select('title price -_id')
+    // mongoose method which retrieve/ doesn't retrieve specific path
+    // .populate('userId', 'name') mongoose method which populates
+    // Population is the process of automatically replacing the specified paths in the document with document(s) from other collection(s). 
     // .fetchAll() // raw mongoDB
     .then(products => {
       res.render('admin/products', {

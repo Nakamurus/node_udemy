@@ -1,6 +1,6 @@
 const Product = require('../models/product');
 // const Cart = require('../models/cart');
-// const Order = require('../models/order');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
   Product
@@ -109,8 +109,11 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then(products => {
+    .populate('cart.items.productId')
+    .execPopulate()
+    // .getCart() // mongoDB
+    .then(user => {
+      const products = user.cart.items;
       // return cart
       //   .getProducts()
       //   .then(products => {
@@ -146,7 +149,8 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  Product.findByPk(prodId)
+  Product.findById(prodId)
+  // Product.findByPk(prodId) // mongoDB
     .then(product => {
       return req.user.addToCart(product);
     })
@@ -195,7 +199,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   req.user
-    .deleteItemFromCart(prodId)
+    .removeFromCart(prodId)
   // Sequelize
   //   .getCart()
   //   .then(cart => {
@@ -217,9 +221,27 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart
   req.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return {quantity: i.quantity, product: {...i.productId._doc } };
+        // ._doc allow to get all info about product, not just productId
+        // and here we spread out all info using  ...
+      });
+      const order = new Order({
+        user: {
+          name: req.user.name,
+          userId: req.user
+        },
+        products: products
+      });
+      return order.save();
+    })
+  // let fetchedCart
+  // req.user
+  //   .addOrder()
     // Sequelize
     // .getCart()
     // .then(cart => {
@@ -243,14 +265,18 @@ exports.postOrder = (req, res, next) => {
     //   return fetchedCart.setProducts(null)
     // })
     .then(result => {
+      return req.user.clearCart();
+    })
+    .then(() => {
       res.redirect('/orders');
     })
     .catch(err => console.log(err))
 }
 
 exports.getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order.find({ 'user.userId': req.user._id })
+  // req.user
+  //   .getOrders()  // mongoDB
     // Sequelize
     // .getOrders({include: ['products']})
     .then(orders => {
