@@ -5,9 +5,9 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
     editing: false,
-    isAuthenticated: req.isLoggedIn
-  })
-}
+    isAuthenticated: req.session.isLoggedIn
+  });
+};
 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
@@ -19,24 +19,18 @@ exports.postAddProduct = (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
-    userId: req.user,  // mongoose retrieve just an id from entire user data
+    userId: req.user
   });
-  // MongoDB
-  // const product = new Product(
-  //   title,
-  //   price,
-  //   description,
-  //   imageUrl,
-  //   null,
-  //   req.user._id
-  // );
   product
     .save()
     .then(result => {
+      // console.log(result);
       console.log('Created Product');
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -45,9 +39,7 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product
-    .findById(prodId) // mongoose method
-    // .findByPk(prodId) // raw mongoDB
+  Product.findById(prodId)
     .then(product => {
       if (!product) {
         return res.redirect('/');
@@ -57,156 +49,56 @@ exports.getEditProduct = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product: product,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
-  // Sequelize
-  // req.user
-  //   .getProducts({ where: {id: prodId } })
-  // // Product.findByPk(prodId) it is equivalent to above code
-  //   .then(products => {
-  //     const product = products[0]
-  //     if (!product) {
-  //       return res.redirect('/');
-  //     } else {
-  //       res.render('admin/edit-product', {
-  //         pageTitle: 'Edit Product',
-  //         path: '/admin/edit-product',
-  //         editing: editMode,
-  //         product: product
-  //       })
-  //     }
-  //   })
-    .catch(err => console.log(err))
-
-  // Using raw SQL
-  // Product.findById(prodId, product => {
-  //   if(!product) {
-  //     return res.redirect('/');
-  //   }
-  //   res.render('admin/edit-product', {
-  //     pageTitle: 'Edit Product',
-  //     path: '/admin/edit-product',
-  //     editing: editMode,
-  //     product: product
-  //   });
-  // });
+    .catch(err => console.log(err));
 };
 
 exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  const updatedtitle = req.body.title;
+  const updatedTitle = req.body.title;
   const updatedPrice = req.body.price;
   const updatedImageUrl = req.body.imageUrl;
   const updatedDesc = req.body.description;
-  
+
   Product.findById(prodId)
     .then(product => {
-      product.title = updatedtitle;
+      product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDesc;
       product.imageUrl = updatedImageUrl;
       return product.save();
     })
-
-  // raw MongoDB
-  // const product = new Product(
-  //   updatedtitle,
-  //   updatedPrice,
-  //   updatedDesc,
-  //   updatedImageUrl,
-  //   prodId
-  // );
-      // Sequelize
-    // Product.findByPk(prodId)
-    //   .then(product => {
-      // product.title = updatedtitle;
-      // product.price = updatedPrice;
-      // product.imageUrl = updatedImageUrl;
-      // product.description = updatedDesc;
-      // return product.save();
-  // product
-  //   .save()
     .then(result => {
-      console.log('UPDATED PRODUCT');
+      console.log('UPDATED PRODUCT!');
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err))
-
-  // raw SQL version
-  // const updatedProduct = new Product(
-  //   prodId,
-  //   updatedtitle,
-  //   updatedImageUrl,
-  //   updatedDesc,
-  //   updatedPrice
-  // );
-  // updatedProduct.save();
-  // res.redirect('/admin/products');
+    .catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
-  Product
-    .find() // mongoose method
+  Product.find()
     // .select('title price -_id')
-    // mongoose method which retrieve/ doesn't retrieve specific path
-    // .populate('userId', 'name') mongoose method which populates
-    // Population is the process of automatically replacing the specified paths in the document with document(s) from other collection(s). 
-    // .fetchAll() // raw mongoDB
+    // .populate('userId', 'name')
     .then(products => {
+      console.log(products);
       res.render('admin/products', {
         prods: products,
         pageTitle: 'Admin Products',
         path: '/admin/products',
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
-    .catch(err => console.log(err))
-
-  // Sequelize
-  // req.user
-  //   .getProducts()
-  // // Product.findAll()
-  //   .then(products => {
-  //     res.render('admin/products', {
-  //       prods: products,
-  //       pageTitle: 'Admin Products',
-  //       path: '/admin/products'
-  //     });
-  //   })
-  //   .catch(err => console.log(err))
-
-  // Using raw SQL
-    // Product.fetchAll(products => {
-  //   res.render('admin/products', {
-  //     prods: products,
-  //     pageTitle: 'Admin Products',
-  //     path: '/admin/products'
-  //   });
-  // });
+    .catch(err => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Product
-    .findByIdAndRemove(prodId)
-    // .deleteByPk(prodId) // raw MongoDB
+  Product.findByIdAndRemove(prodId)
     .then(() => {
       console.log('DESTROYED PRODUCT');
       res.redirect('/admin/products');
     })
-  // Sequelize
-  // Product.findByPk(prodId)
-  //   .then(product => {
-  //     return product.destroy();
-  //   })
-    // .then(result => {
-    //   console.log('DESCTROYED PRODUCT');
-    //   res.redirect('/admin/products');
-    // })
-    .catch(err => console.log(err))
-
-  // raw SQL version
-  // Product.deleteById(prodId);
-  // res.redirect('/admin/products')
-}
+    .catch(err => console.log(err));
+};

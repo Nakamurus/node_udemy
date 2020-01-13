@@ -30,22 +30,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
     secret: 'my secret',
-    resave: false, // session won't be saved on every request but if something changed
+    resave: false,
     saveUninitialized: false,
     store: store
   })
-)
+);
 
 app.use((req, res, next) => {
-  User
-    .findById('5e198147996b5a4878a72a1e')
-    // .findByPk('5e16f4deab409d3f0841da34') // raw mongoDB
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then(user => {
-      req.user = user; // mongoose method
-      // req.user = new User(user.name, user.email, user.cart, user._id); // raw mongoDB
+      req.user = user;
       next();
     })
-    .catch(err => console.log(err))
+    .catch(err => console.log(err));
 });
 
 app.use('/admin', adminRoutes);
@@ -58,10 +58,10 @@ mongoose
   .connect(MONGODBCONNECTIONSTR)
   .then(result => {
     User.findOne().then(user => {
-      if(!user) {
+      if (!user) {
         const user = new User({
-          name: 'Nakamura',
-          email: 'test@test.com',
+          name: 'Max',
+          email: 'max@test.com',
           cart: {
             items: []
           }
@@ -71,4 +71,6 @@ mongoose
     });
     app.listen(3000);
   })
-  .catch(err => console.log(err))
+  .catch(err => {
+    console.log(err);
+  });
