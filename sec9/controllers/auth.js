@@ -1,6 +1,24 @@
+require('dotenv').config();
+
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 const User = require('../models/user');
+
+const mailAddress = process.env.MAILADDRESS
+const mailPass = process.env.MAILPASSWORD
+
+const smtpConfig = {
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // SSL
+  auth: {
+    user: mailAddress,
+    pass: mailPass
+  }
+};
+
+const transporter = nodemailer.createTransport(smtpConfig);
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash('error');
@@ -80,7 +98,14 @@ exports.postSignup = (req, res, next) => {
         })
         .then(result => {
           res.redirect('/login');
-        });
+          return transporter.sendMail({
+            from: mailAddress,
+            to: email,
+            subject: 'Title',
+            text: 'TEXt'
+          });
+        })
+        .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
 };
