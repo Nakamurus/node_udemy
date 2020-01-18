@@ -24,6 +24,8 @@ const store = new MongoDBStore({
 const csrfProtection = csrf();
 
 const fileStorage = multer.diskStorage({
+  // NOTE: multer doesn't create directory
+  // so you have to create in advance or dynamically using fs.
   destination: (req, file, cb) => {
     cb(null, './images');
   },
