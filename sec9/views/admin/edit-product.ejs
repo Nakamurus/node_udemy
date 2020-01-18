@@ -28,22 +28,12 @@
                     class="<%= validationErrors.find(e => e.param === 'title') ? 'invalid': '' %>"
                     value="<% if (editing || hasError) { %><%= product.title %><% } %>">
             </div>
-            <!-- <div class="form-control">
-                <label for="imageUrl">Image URL</label>
-                <input
-                    type="text"
-                    name="imageUrl"
-                    id="imageUrl"
-                    class="<%= validationErrors.find(e => e.param === 'imageUrl') ? 'invalid': '' %>"
-                    value="<%if (editing || hasError { %><%= product.imageUrl %><% } %>">
-            </div> -->
             <div class="form-control">
                 <label for="image">Image</label>
                 <input
                     type="file"
                     name="image"
-                    id="image"
-                >
+                    id="image">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
@@ -53,7 +43,7 @@
                     id="price"
                     step="0.01"
                     class="<%= validationErrors.find(e => e.param === 'price') ? 'invalid': '' %>"
-                    value="<% if (editing || hasError) { %><%=product.price %><% }%>">
+                    value="<% if (editing || hasError) { %><%=product.price %><% } %>">
             </div>
             <div class="form-control">
                 <label for="description">Description</label>
@@ -61,14 +51,13 @@
                     name="description"
                     id="description"
                     class="<%= validationErrors.find(e => e.param === 'description') ? 'invalid': '' %>"
-                    rows="5"><% if (editing || hasError) { %><%= product.description %><% } %></textareaname="description">
+                    rows="5"><% if (editing || hasError) { %><%= product.description %><% } %></textarea>
             </div>
             <% if (editing) { %>
                 <input type="hidden" name="productId" value="<%= product._id %>"> <!-- mongoDB -->
-                <!-- <input type="hidden" value="<%= product.id  %>" name="productId"> -->
             <% } %>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn" type="submit"><% if  (editing) { %>Update Product<% } else {%>Add Product<%} %></button>
-        </formclass="product-form">
+            <button class="btn" type="submit"><% if  (editing) { %>Update Product<% } else { %>Add Product <% } %></button>
+        </form>
     </main>
 <%- include('../includes/end.ejs') %>s
