@@ -45,7 +45,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use((req, res, next) => {
     // set these to avoid CORS(Cross Origin Resource Sharing) Errors
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT', 'PATCH', 'DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 })
@@ -64,7 +64,8 @@ mongoose
         process.env.MONGODBCONNECTIONSTR,
         {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            useFindAndModify: false
         })
     .then(result => {
         app.listen(8080);
