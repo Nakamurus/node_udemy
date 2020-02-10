@@ -54,7 +54,8 @@ app.use(
   '/graphql',
   graphqlHttp({
     schema: graphqlSchema,
-    rootValue: graphqlResolver
+    rootValue: graphqlResolver,
+    graphiql: true
 }))
 
 app.use((error, req, res, next) => {
@@ -74,6 +75,6 @@ mongoose
         useFindAndModify: false
     })
   .then(result => {
-    const server = app.listen(8080);
+    app.listen(8080);
   })
   .catch(err => console.log(err));
